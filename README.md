@@ -27,7 +27,7 @@ The technologies behind are:
 
  ## Progress (RoadMap)
 
- - [x] Bootstrap with minimun replica
+ - [x] :hourglass: Bootstrap with minimun replica
  - [ ] Set member list using gossip protocol
  - [ ] Create embedded NATS cluster between bootstraping peers ([embedded test](https://github.com/nats-io/nats-server/blob/master/test/test.go#L46))
   - On the future, the NATS peers could be separate from the raft peers
