@@ -3,12 +3,12 @@
 > "Who is in charge here, Commander?"
 
 Kubernetes and Containers are broken by design. VM and hypervisors had been an issue just because are trying
-to clone a full operating system and machine to run only a couple of prcesses. Containers looks better on the sense
+to clone a full operating system and machine to run only a couple of processes. Containers looks better on the sense
 that they share a common kernel, but that was never the issue on first place. Micro-vms and unikernel face directly
-the problem, vm and hypervisor at fine if we focus on implement just what its needed to run ou processes, the is not
-need at all to use an operating system and all hardware abstracion.
+the problem, vm and hypervisor at fine if we focus on implement just what its needed to run specific processes, there is not
+need at all to use an operating system and all hardware abstraction.
 
-Under this context, orchestration and coreography must also evolve to something simpler. Sappers its created about
+Under this context, orchestration and choreography must also evolve to something simpler. Sappers its created under
 just 2 basic principles:
 
 - Eventually know who are your peers
