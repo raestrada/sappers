@@ -18,6 +18,7 @@ jobs:
       - run: |
           go get -u golang.org/x/lint/golint
           /go/bin/golint -set_exit_status -min_confidence 0.81 ./...
+
   security:
     runs-on: ubuntu-16.04
     strategy:
@@ -38,7 +39,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.14' ]
-    name: Go ${{ matrix.go }} sappers security
+    name: Go ${{ matrix.go }} sappers style
     steps:
       - uses: actions/checkout@v2
       - name: style
@@ -48,12 +49,13 @@ jobs:
       - run: |
           go get github.com/qiniu/checkstyle/gocheckstyle
           /go/bin/gocheckstyle -config=.go_style ./ server regex common
+
   naming:
     runs-on: ubuntu-16.04
     strategy:
       matrix:
         go: [ '1.14' ]
-    name: Go ${{ matrix.go }} sappers security
+    name: Go ${{ matrix.go }} sappers naming
     steps:
       - uses: actions/checkout@v2
       - name: naming
@@ -68,7 +70,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.14' ]
-    name: Go ${{ matrix.go }} sappers security
+    name: Go ${{ matrix.go }} sappers code-duplicate
     steps:
       - uses: actions/checkout@v2
       - name: code-duplicates
@@ -84,7 +86,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.14' ]
-    name: Go ${{ matrix.go }} sappers security
+    name: Go ${{ matrix.go }} sappers test
     steps:
       - uses: actions/checkout@v2
       - name: test
