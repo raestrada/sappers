@@ -18,6 +18,8 @@ The idea behind this is that the same agents ([no micro-service anymore](https:/
 are in charge to orchestrate themselves.
 
 The technologies behind are:
+ - micro(nano)-vms
+ - unikernel
  - gossip protocol
  - RAFT consensus
  - Distributed messages
