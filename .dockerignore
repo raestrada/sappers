@@ -1,0 +1,6 @@
+Dockerfile
+.drone.yml
+.editorconfig
+.gitignore
+README.md
+deploy/

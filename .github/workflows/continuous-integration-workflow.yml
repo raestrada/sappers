@@ -1,0 +1,113 @@
+name: Push Check
+# This workflow is triggered on pushes to the repository.
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers lint
+    steps:
+      - uses: actions/checkout@v2
+      - name: lint
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get -u golang.org/x/lint/golint
+          /go/bin/golint -set_exit_status -min_confidence 0.81 ./...
+  security:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers security
+    steps:
+      - uses: actions/checkout@v2
+      - name: security
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get github.com/securego/gosec/cmd/gosec
+          /go/bin/gosec ./...
+  style:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers security
+    steps:
+      - uses: actions/checkout@v2
+      - name: style
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get github.com/qiniu/checkstyle/gocheckstyle
+          /go/bin/gocheckstyle -config=.go_style ./ server regex common
+  naming:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers security
+    steps:
+      - uses: actions/checkout@v2
+      - name: naming
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get -v github.com/quasilyte/go-namecheck
+          /go/bin/go-namecheck -rules .go_naming_rules ./...
+  code-duplicates:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers security
+    steps:
+      - uses: actions/checkout@v2
+      - name: code-duplicates
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get -u github.com/mibk/dupl
+          dupl -t 200
+
+  test:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers security
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get -d -v ./...
+          go test -cover ./...
+          go build -ldflags \"-s -w -X main.revision=$(git rev-parse HEAD)\" -a
+
+  build:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        go: [ '1.14' ]
+    name: Go ${{ matrix.go }} sappers build
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go get -d -v ./...
+          GOOS=linux go build -a -tags static_all -tags musl -o sre-metrics-collector .
