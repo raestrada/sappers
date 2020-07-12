@@ -1,4 +1,4 @@
-module bitbucket.org/walmartdigital/sre-metrics-collector
+module github.com/raestrada/sappers
 
 go 1.14
 
