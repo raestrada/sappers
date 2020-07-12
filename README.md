@@ -28,16 +28,16 @@ The technologies behind are:
  ## Progress (RoadMap)
 
  - [x] Bootstrap with minimun replica
- - [] Set member list using gossip protocol
- - [] Create embedded NATS cluster between bootstraping peers ([embedded test](https://github.com/nats-io/nats-server/blob/master/test/test.go#L46))
+ - [ ] Set member list using gossip protocol
+ - [ ] Create embedded NATS cluster between bootstraping peers ([embedded test](https://github.com/nats-io/nats-server/blob/master/test/test.go#L46))
   - On the future, the NATS peers could be separate from the raft peers
- - [] Choose leader using RAFT between randomly number of replica peers:
+ - [ ] Choose leader using RAFT between randomly number of replica peers:
   - Start with bootstrap peers
   - When a RAFT consensus peer leave the cluster, the leader must peak one of the remaining peers and join to RAFT and NATS
- - [] Leader will keep managment database updated and will replicate to the rest of RAFT peers
- - Create GCP micro-vm launcher (sappers-infantry-GCP)
- - Peer leader will launch micro-vm launcher and will store connection info
- - Let leader launch new micro-vms using images
- - Create healer micro vm
- - Peer leader will launch healer micro vm and will store connection info
- - Make avalaible all changes to all nodes (NATS publish/subscribe?)
+ - [ ] Leader will keep managment database updated and will replicate to the rest of RAFT peers
+ - [ ] Create GCP micro-vm launcher (sappers-infantry-GCP)
+ - [ ] Peer leader will launch micro-vm launcher and will store connection info
+ - [ ] Let leader launch new micro-vms using images
+ - [ ] Create healer micro vm
+ - [ ] Peer leader will launch healer micro vm and will store connection info
+ - [ ] Make avalaible all changes to all nodes (NATS publish/subscribe?)
