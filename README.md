@@ -31,7 +31,8 @@ The technologies behind are:
 
  - Management its done by a consensus group. The leader its only taking decisions and replicating the state
  - Push will be prefered over pull. for example, health checks will be pushed by apps
- - The managment layer will run as sidecar on any app
+ - The managment layer will run as sidecar on any app (the current repo ;) )
+ - The messaging will be handling using the sidecar (**planned provide block storage using micro-services and replicas using the sidecar**)
  - Operations task will be handled by small specialized micro-vms (operator micro-vms)
  - Managment task like monitor and healing are done by specialized (operator) micro-vms launched and monitored by the leader
  - Any peers can be part of the consensus group, but will have preference peers with more free resources or consensus tagged peers
