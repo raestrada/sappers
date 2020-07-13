@@ -27,6 +27,16 @@ The technologies behind are:
  - Distributed messages
  - Distributed immutable events databases (blockchain?).
 
+ ## Design principles
+
+ - Management its done by a consensus group. The leader its only taking decisions and replicating the state
+ - Push will be prefered over pull. for example, health checks will be pushed by apps
+ - The managment layer will run as sidecar on any app
+ - Operations task will be handled by small specialized micro-vms (operator micro-vms)
+ - Managment task like monitor and healing are done by specialized (operator) micro-vms launched and monitored by the leader
+ - Any peers can be part of the consensus group, but will have preference peers with more free resources or consensus tagged peers
+ - The communication will be provided by a NATS hub launched by the leader and monitored by a specialized micro-vm
+
  ## Progress (RoadMap)
 
  - [x] :hourglass: Bootstrap with minimun replica
@@ -35,6 +45,7 @@ The technologies behind are:
   - On the future, the NATS peers could be separate from the raft peers
  - [ ] Choose leader using RAFT between randomly number of replica peers:
   - Start with bootstrap peers
+  - For consensus, choose peers with more free resources and gave preferences to tagged ones
   - When a RAFT consensus peer leave the cluster, the leader must peak one of the remaining peers and join to RAFT and NATS
  - [ ] Leader will keep managment database updated and will replicate to the rest of RAFT peers
  - [ ] Create GCP micro-vm launcher (sappers-infantry-GCP)
