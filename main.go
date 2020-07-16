@@ -5,6 +5,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/google/uuid"
+	"github.com/raestrada/sappers/cluster"
+	"github.com/raestrada/sappers/member"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -57,8 +60,12 @@ func main() {
 		panic(err)
 	}
 
+	logger = logger.With(zap.String("hash", uuid.New()))
+
 	zap.ReplaceGlobals(logger)
 	zap.L().Info("STDOUT Global Logger started")
+
+	go startCluster()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -72,4 +79,8 @@ func main() {
 		fmt.Println("Kill heard. Ending main function")
 		return
 	}
+}
+
+func startCluster() {
+	var cluster = cluster.Cluster.Create(member.GossipMemberListFactory)
 }

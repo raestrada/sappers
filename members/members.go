@@ -9,6 +9,11 @@ type MemberListFactory struct {}
 
 // MemberList ...
 type MemberList interface {
-  Join(peers)
+  Join(peers []string)
   Get() []domain.Member
+}
+
+// MemberListFactory ...
+type MemberListFactory interface {
+	Create() MemberList
 }

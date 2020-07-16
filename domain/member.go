@@ -1,5 +1,6 @@
 package domain
 
 type Member struct {
-	ip string
+	Addr string
+	Name string
 }
