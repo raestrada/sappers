@@ -1,16 +1,13 @@
 package members
 
 import (
-  "github.com/raestrada/sappers/domain"
+	"github.com/raestrada/sappers/domain"
 )
-
-// MemberListFactory ...
-type MemberListFactory struct {}
 
 // MemberList ...
 type MemberList interface {
-  Join(peers []string)
-  Get() []domain.Member
+	Join(peers []string)
+	Get() []domain.Member
 }
 
 // MemberListFactory ...

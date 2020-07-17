@@ -48,7 +48,7 @@ jobs:
           go-version: ${{ matrix.go }}
       - run: |
           go get github.com/qiniu/checkstyle/gocheckstyle
-          /go/bin/gocheckstyle -config=.go_style ./ server regex common
+          /go/bin/gocheckstyle -config=.go_style ./ cluster domain event_hub healer members mocks scheduler
 
   naming:
     runs-on: ubuntu-16.04

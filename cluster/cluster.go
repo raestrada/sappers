@@ -1,25 +1,22 @@
 package cluster
 
 import (
-  "github.com/raestrada/sappers/member"
+	"github.com/raestrada/sappers/members"
 )
 
 // Cluster ...
 type Cluster struct {
-  memberList member.MemberList
+	memberList members.MemberList
 }
 
-// ClusterFactory ...
-type ClusterFactory {}
-
 // Create ...
-func (cf ClusterFactory) Create(mfactory member.MemberListFactory) Cluster {
-  return Cluster{
-    memberList: mfactory.Create()
-  }
+func Create(mfactory members.MemberListFactory) Cluster {
+	return Cluster{
+		memberList: mfactory.Create(),
+	}
 }
 
 // Init ...
 func (c Cluster) Init(peers []string) {
-  c.memberList.Join(peers)
+	c.memberList.Join(peers)
 }

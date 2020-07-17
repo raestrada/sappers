@@ -1,18 +1,27 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/raestrada/sappers/cluster"
-	"github.com/raestrada/sappers/member"
+	"github.com/raestrada/sappers/members"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+var peers []string
+
 func main() {
+	peers = strings.Split(*flag.String("peers", "localhost", "peers list"), ",")
+	if value, ok := os.LookupEnv("SAPPERS_PEERS"); ok {
+		peers = strings.Split(value, ",")
+	}
+
 	var logger *zap.Logger
 
 	logLevel := "Error"
@@ -60,7 +69,7 @@ func main() {
 		panic(err)
 	}
 
-	logger = logger.With(zap.String("hash", uuid.New()))
+	logger = logger.With(zap.String("hash", uuid.New().String()))
 
 	zap.ReplaceGlobals(logger)
 	zap.L().Info("STDOUT Global Logger started")
@@ -82,5 +91,6 @@ func main() {
 }
 
 func startCluster() {
-	var cluster = cluster.Cluster.Create(member.GossipMemberListFactory)
+	var cluster = cluster.Create(members.GossipMemberListFactory{})
+	cluster.Init(peers)
 }
