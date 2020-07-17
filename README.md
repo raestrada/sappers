@@ -38,6 +38,9 @@ The technologies behind are:
  - Managment task like monitor and healing are done by specialized (operator) micro-vms launched and monitored by the leader
  - Any peers can be part of the consensus group, but will have preference peers with more free resources or consensus tagged peers
  - The communication will be provided by a NATS hub launched by the leader and monitored by a specialized micro-vm
+ - Unikernel provisioner initially will be a Linux Container until research how to convert to Unikernel.
+
+ > **Initial Restriction:** Due to limitations to run Sidecars on the current unikernel implementations, the language support will be limited to GO to allow run Sappers embedded.
 
  ## Progress (RoadMap)
 
