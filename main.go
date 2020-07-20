@@ -69,7 +69,7 @@ func main() {
 		panic(err)
 	}
 
-	logger = logger.With(zap.String("hash", uuid.New().String()))
+	logger = logger.With(zap.String("execution-hash", uuid.New().String()))
 
 	zap.ReplaceGlobals(logger)
 	zap.L().Info("STDOUT Global Logger started")
