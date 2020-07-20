@@ -1,0 +1,13 @@
+{
+    "Files": ["sappers"],
+    "Env": {
+        "LOG_LEVEL": "DEBUG"
+    },
+    "NameServer": "8.8.8.8",
+    "RunConfig": {
+        "Verbose": true,
+        "Bridged": false,
+        "Ports": [8008],
+        "Memory": "128M"
+    }
+}

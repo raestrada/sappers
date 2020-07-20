@@ -38,20 +38,23 @@ The technologies behind are:
  - Managment task like monitor and healing are done by specialized (operator) micro-vms launched and monitored by the leader
  - Any peers can be part of the consensus group, but will have preference peers with more free resources or consensus tagged peers
  - The communication will be provided by a NATS hub launched by the leader and monitored by a specialized micro-vm
+ - Unikernel provisioner initially will be a Linux Container until research how to convert to Unikernel.
+
+ > **Initial Restriction:** Due to limitations to run Sidecars on the current unikernel implementations, the language support will be limited to GO to allow run Sappers embedded.
 
  ## Progress (RoadMap)
 
- - [x] :hourglass: Bootstrap with minimun replica
- - [ ] Set member list using gossip protocol
- - [ ] Create embedded NATS cluster between bootstraping peers ([embedded test](https://github.com/nats-io/nats-server/blob/master/test/test.go#L46))
-  - On the future, the NATS peers could be separate from the raft peers
+ - [x] Bootstrap with minimun replica
+ - [ ] :hourglass: Set member list using gossip protocol
  - [ ] Choose leader using RAFT between randomly number of replica peers:
   - Start with bootstrap peers
   - For consensus, choose peers with more free resources and gave preferences to tagged ones
   - When a RAFT consensus peer leave the cluster, the leader must peak one of the remaining peers and join to RAFT and NATS
+ - [ ] Create embedded NATS cluster between bootstraping peers ([embedded test](https://github.com/nats-io/nats-server/blob/master/test/test.go#L46))
+  - On the future, the NATS peers could be separate from the raft peers
  - [ ] Leader will keep managment database updated and will replicate to the rest of RAFT peers
  - [ ] Create GCP micro-vm launcher (sappers-infantry-GCP)
- - [ ] Peer leader will launch micro-vm launcher and will store connection info
+ - [ ] Peer leader will launch micro-vm launcher and will store connection inf
  - [ ] Let leader launch new micro-vms using images
  - [ ] Create healer micro vm
  - [ ] Peer leader will launch healer micro vm and will store connection info

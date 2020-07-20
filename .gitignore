@@ -20,3 +20,6 @@
 /Godeps/
 
 .vscode/
+
+bin/
+sappers

@@ -69,7 +69,7 @@ func main() {
 		panic(err)
 	}
 
-	logger = logger.With(zap.String("hash", uuid.New().String()))
+	logger = logger.With(zap.String("execution-hash", uuid.New().String()))
 
 	zap.ReplaceGlobals(logger)
 	zap.L().Info("STDOUT Global Logger started")
@@ -91,21 +91,6 @@ func main() {
 }
 
 func startCluster() {
-
-	fmt.Println("---------------------------------------------")
-	fmt.Println(" _____                                        ")
-	fmt.Println("/  ___|                                      ")
-	fmt.Println("\\ `--.  __ _ _ __  _ __   ___ _ __ ___       ")
-	fmt.Println(" `--. \\/ _` | '_ \\| '_ \\ / _ \\ '__/ __|      ")
-	fmt.Println(" /\\__/ / (_| | |_) | |_) |  __/ |  \\__ \\     ")
-	fmt.Println(" \\____/ \\__,_| .__/| .__/ \\___|_|  |___/     ")
-	fmt.Println("             | |   | |                       ")
-	fmt.Println("             |_|   |_|                       ")
-	fmt.Println("---------------------------------------------")
-	fmt.Println("     Who is in charge here, Commander?       ")
-	fmt.Println("---------------------------------------------")
-
-	zap.L().Info("Starting Cluster ...")
 	var cluster = cluster.Create(members.GossipMemberListFactory{})
 	cluster.Init(peers)
 }
