@@ -17,7 +17,7 @@ import (
 var peers []string
 
 func main() {
-	peers = strings.Split(*flag.String("peers", "localhost", "peers list"), ",")
+	peers = strings.Split(*flag.String("peers", "127.0.0.1", "peers list"), ",")
 	if value, ok := os.LookupEnv("SAPPERS_PEERS"); ok {
 		peers = strings.Split(value, ",")
 	}
