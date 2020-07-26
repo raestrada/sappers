@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/hashicorp/memberlist v0.2.2
 	github.com/hashicorp/raft v1.1.2
+	github.com/hashicorp/raft-boltdb v0.0.0-20171010151810-6e5ba93211ea
 	github.com/qiniu/checkstyle v0.0.0-20181122073030-e47d31cae315 // indirect
 	github.com/quasilyte/go-namecheck v0.0.0-20190530083159-81b081ff1afc // indirect
 	github.com/securego/gosec v0.0.0-20200401082031-e946c8c39989 // indirect
