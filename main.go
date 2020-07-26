@@ -16,8 +16,41 @@ import (
 
 var peers []string
 
+// Command line defaults
+const (
+	DefaultHTTPAddr = ":11000"
+	DefaultRaftAddr = ":12000"
+)
+
+// Command line parameters
+var inmem bool
+var httpAddr string
+var raftAddr string
+var joinAddr string
+var nodeID string
+var inPeers string
+
 func main() {
-	peers = strings.Split(*flag.String("peers", "127.0.0.1", "peers list"), ",")
+	flag.BoolVar(&inmem, "inmem", false, "Use in-memory storage for Raft")
+	flag.StringVar(&httpAddr, "haddr", DefaultHTTPAddr, "Set the HTTP bind address")
+	flag.StringVar(&raftAddr, "raddr", DefaultRaftAddr, "Set Raft bind address")
+	flag.StringVar(&joinAddr, "join", "", "Set join address, if any")
+	flag.StringVar(&nodeID, "id", "", "Node ID")
+	flag.StringVar(&inPeers, "peers", "127.0.0.1", "peers list")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] <raft-data-path> \n", os.Args[0])
+		flag.PrintDefaults()
+	}
+
+	flag.Parse()
+
+	if flag.NArg() == 0 {
+		fmt.Fprintf(os.Stderr, "No Raft storage directory specified\n")
+		os.Exit(1)
+	}
+
+	peers = strings.Split(inPeers, ",")
+
 	if value, ok := os.LookupEnv("SAPPERS_PEERS"); ok {
 		peers = strings.Split(value, ",")
 	}

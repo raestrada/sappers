@@ -1,14 +1,15 @@
-// Package httpd provides the HTTP server for accessing the distributed key-value store.
+// Package service provides the HTTP server for accessing the distributed key-value store.
 // It also provides the endpoint for other nodes to join an existing cluster.
-package httpd
+package service
 
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 // Store is the interface Raft-backed key-value stores must implement.
@@ -44,6 +45,8 @@ func New(addr string, store Store) *Service {
 
 // Start starts the service.
 func (s *Service) Start() error {
+	funcDesc := "service - Start"
+
 	server := http.Server{
 		Handler: s,
 	}
@@ -59,7 +62,10 @@ func (s *Service) Start() error {
 	go func() {
 		err := server.Serve(s.ln)
 		if err != nil {
-			log.Fatalf("HTTP serve: %s", err)
+			zap.L().Fatal(
+				funcDesc,
+				zap.String("msg", err.Error()),
+			)
 		}
 	}()
 
