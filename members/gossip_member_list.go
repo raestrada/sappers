@@ -3,69 +3,63 @@ package members
 import (
 	"github.com/raestrada/sappers/config"
 	"github.com/hashicorp/memberlist"
-	"github.com/raestrada/sappers/domain"
-	"github.com/wesovilabs/koazee"
 	"go.uber.org/zap"
 )
 
-// GossipMemberList ...
-type GossipMemberList struct {
-	list *memberlist.Memberlist
+// MemberListFactory defines the factory interface for creating member lists.
+type MemberListFactory interface {
+	Create() MemberList
 }
 
-// Join ..
-func (gml *GossipMemberList) Join(peers []string) {
-	var funcDesc = "GossipMemberList - Join"
-
-	_, err := gml.list.Join(peers)
+// Join hace que este nodo se una a un cluster utilizando los peers proporcionados.
+func (mla *MemberlistAdapter) Join(peers []string) error {
+	_, err := mla.list.Join(peers)
 	if err != nil {
 		zap.L().Fatal(
-			funcDesc,
-			zap.String("type", "Failed to join cluster"),
+			"Failed to join cluster",
+			zap.String("type", "Join"),
+			zap.String("msg", err.Error()),
+		)
+		return err
+	}
+	zap.L().Info("Successfully joined the cluster")
+	return nil
+}
+
+// Get retorna la lista de miembros conectados.
+func (mla *MemberlistAdapter) Get() []Member {
+	members := make([]Member, len(mla.list.Members()))
+	for i, member := range mla.list.Members() {
+		members[i] = Member{
+			Addr: member.Addr.String(),
+			Name: member.Name,
+		}
+	}
+	return members
+}
+
+// Create crea una nueva instancia de MemberlistAdapter utilizando memberlist.
+func (mf MemberlistFactory) Create() MemberList {
+	cfg := config.GetConfig()
+	mlConfig := memberlist.DefaultLocalConfig()
+	mlConfig.BindPort = cfg.GossipPort
+	mlConfig.Name = cfg.NodeID
+
+	list, err := memberlist.Create(mlConfig)
+	if err != nil {
+		zap.L().Fatal(
+			"Failed to create memberlist",
+			zap.String("type", "Create"),
 			zap.String("msg", err.Error()),
 		)
 	}
-}
 
-// Get ...
-func (gml *GossipMemberList) Get() []domain.Member {
-	return koazee.StreamOf(gml.list.Members()).
-		Map(
-			func(member domain.Member) domain.Member {
-				return domain.Member{
-					Addr: member.Addr,
-					Name: member.Name,
-				}
-			}).Out().Val().([]domain.Member)
-}
+	zap.L().Info("Memberlist created successfully",
+		zap.String("nodeID", cfg.NodeID),
+		zap.Int("gossipPort", cfg.GossipPort),
+	)
 
-// GossipMemberListFactory ...
-type GossipMemberListFactory struct{}
-
-// GossipMemberListFactory - Create
-func (gmlf GossipMemberListFactory) Create() MemberList {
-    var funcDesc = "GossipMemberListFactory - Create"
-
-    cfg := config.GetConfig()
-    config := memberlist.DefaultLocalConfig()
-    config.BindPort = cfg.GossipPort
-	config.Name = cfg.NodeID
-
-    list, err := memberlist.Create(config)
-    if err != nil {
-        zap.L().Fatal( 
-            funcDesc,
-            zap.String("type", "Failed to create memberlist"),
-            zap.String("msg", err.Error()),
-        )
-    }
-
-    zap.L().Info("Memberlist created successfully", 
-        zap.String("nodeID", cfg.NodeID),
-        zap.Int("gossipPort", cfg.GossipPort),
-    )
-
-    return &GossipMemberList{
-        list: list,
-    }
+	return &MemberlistAdapter{
+		list: list,
+	}
 }

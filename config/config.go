@@ -11,7 +11,8 @@ type Config struct {
     HTTPAddr   string
     NodeID     string
     Peers      []string
-    LogLevel   string  // <--- Agregar este campo
+    LogLevel   string
+	RaftDir    string
 }
 
 var (
@@ -29,6 +30,7 @@ func GetConfig() *Config {
         viper.SetDefault("node-id", "default-node")
         viper.SetDefault("log-level", "ERROR")  
         viper.SetDefault("peers", []string{"127.0.0.1"})
+		viper.SetDefault("raft-dir", "raft/node")
 
         viper.BindEnv("gossip-port")
         viper.BindEnv("raft-addr")
@@ -36,6 +38,7 @@ func GetConfig() *Config {
         viper.BindEnv("node-id")
         viper.BindEnv("log-level")
         viper.BindEnv("peers")
+		viper.BindEnv("raft-dir")
 
         // Parsear peers como una lista
         peers := viper.GetStringSlice("peers")
@@ -47,6 +50,7 @@ func GetConfig() *Config {
             NodeID:     viper.GetString("node-id"),
             LogLevel:   viper.GetString("log-level"), 
             Peers:      peers,
+			RaftDir:    viper.GetString("raft-dir"), 
         }
     })
     return config
