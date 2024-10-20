@@ -46,20 +46,21 @@ type GossipMemberListFactory struct{}
 func (gmlf GossipMemberListFactory) Create() MemberList {
     var funcDesc = "GossipMemberListFactory - Create"
 
-    cfg := config.GetConfig()  // Obtener la configuración desde el singleton
+    cfg := config.GetConfig()
     config := memberlist.DefaultLocalConfig()
-    config.BindPort = cfg.GossipPort  // Usamos el puerto gossip definido en la configuración
+    config.BindPort = cfg.GossipPort
+	config.Name = cfg.NodeID
 
     list, err := memberlist.Create(config)
     if err != nil {
-        zap.L().Fatal(  // Usar el logger global ya configurado
+        zap.L().Fatal( 
             funcDesc,
             zap.String("type", "Failed to create memberlist"),
             zap.String("msg", err.Error()),
         )
     }
 
-    zap.L().Info("Memberlist created successfully",  // Usar el logger global
+    zap.L().Info("Memberlist created successfully", 
         zap.String("nodeID", cfg.NodeID),
         zap.Int("gossipPort", cfg.GossipPort),
     )

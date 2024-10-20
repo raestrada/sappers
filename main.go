@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
+	"github.com/spf13/viper"
+    "github.com/spf13/pflag"
 	"github.com/raestrada/sappers/config"
-	"github.com/google/uuid"
 	"github.com/raestrada/sappers/cluster"
 	"github.com/raestrada/sappers/members"
 	"go.uber.org/zap"
@@ -31,55 +33,27 @@ var inPeers string
 var gossipPort int
 
 func main() {
+	// Definir los parámetros de CLI con pflag
+    pflag.Int("gossip-port", 7946, "Puerto para gossip")
+    pflag.String("raft-addr", ":12000", "Dirección para Raft")
+    pflag.String("http-addr", ":11000", "Dirección HTTP")
+    pflag.String("node-id", "default-node", "ID del nodo")
+    pflag.String("log-level", "ERROR", "Nivel de logs")
+    pflag.StringSlice("peers", []string{"127.0.0.1"}, "Peers del clúster")
+
+    // Parsear los parámetros de CLI
+    pflag.Parse()
+
+    // Viper automáticamente tomará los valores de pflag
+    viper.BindPFlags(pflag.CommandLine)
+
 	cfg := config.GetConfig()
 
-	var logger *zap.Logger
-    var err error
+    initializeLogger(cfg.LogLevel)
 
-    zapLogLevel := zap.ErrorLevel  // Valor por defecto para el nivel de logs
-    logLevel := cfg.LogLevel       // Obtener el nivel de logs desde el singleton de configuración
-
-    switch logLevel {
-    case "INFO":
-        zapLogLevel = zap.InfoLevel
-    case "DEBUG":
-        zapLogLevel = zap.DebugLevel
-    case "WARN":
-        zapLogLevel = zap.WarnLevel
-    case "ERROR":
-        zapLogLevel = zap.ErrorLevel
-    default:
-        zapLogLevel = zap.ErrorLevel
-    }
-
-    cfgZap := zap.Config{
-        Encoding:         "json",
-        Level:            zap.NewAtomicLevelAt(zapLogLevel),
-        OutputPaths:      []string{"stdout"},
-        ErrorOutputPaths: []string{"stdout"},
-        EncoderConfig: zapcore.EncoderConfig{
-            MessageKey: "msg",
-
-            LevelKey:    "level",
-            EncodeLevel: zapcore.CapitalLevelEncoder,
-
-            TimeKey:    "time",
-            EncodeTime: zapcore.ISO8601TimeEncoder,
-
-            CallerKey:    "caller",
-            EncodeCaller: zapcore.ShortCallerEncoder,
-        },
-    }
-	logger, err =cfgZap.Build()
-
-	if err != nil {
-		panic(err)
-	}
-
-	logger = logger.With(zap.String("execution-hash", uuid.New().String()))
-
-	zap.ReplaceGlobals(logger)
-	zap.L().Info("STDOUT Global Logger started")
+	zap.L().Info("STDOUT Global Logger started",
+		zap.String("nodeID", cfg.NodeID), 
+	)
 
 	go startCluster()
 
@@ -109,3 +83,52 @@ func startCluster() {
     var cluster = cluster.Create(members.GossipMemberListFactory{})
     cluster.Init(cfg.Peers)  // Usar peers desde la configuración
 }
+
+func initializeLogger(logLevel string) *zap.Logger {
+    var zapLogLevel zapcore.Level
+	logLevel = strings.ToUpper(logLevel);
+	fmt.Println("Log Level:", logLevel)
+
+    // Convertir el nivel de log a un formato válido para Zap
+    switch logLevel {
+    case "INFO":
+        zapLogLevel = zap.InfoLevel
+    case "DEBUG":
+        zapLogLevel = zap.DebugLevel
+    case "WARN":
+        zapLogLevel = zap.WarnLevel
+    case "ERROR":
+        zapLogLevel = zap.ErrorLevel
+    default:
+        panic("Invalid log Level!")
+    }
+
+    zapCfg := zap.Config{
+        Encoding:         "json",  // Los logs serán en formato JSON
+        Level:            zap.NewAtomicLevelAt(zapLogLevel),
+        OutputPaths:      []string{"stdout"},  // Salida en stdout
+        ErrorOutputPaths: []string{"stderr"},  // Errores a stderr
+        EncoderConfig: zapcore.EncoderConfig{
+            MessageKey: "msg",
+
+            LevelKey:    "level",
+            EncodeLevel: zapcore.CapitalLevelEncoder,
+
+            TimeKey:    "time",
+            EncodeTime: zapcore.ISO8601TimeEncoder,
+
+            CallerKey:    "caller",
+            EncodeCaller: zapcore.ShortCallerEncoder,
+        },
+    }
+
+    logger, err := zapCfg.Build()
+    if err != nil {
+        panic("Failed to initialize logger: " + err.Error())
+    }
+
+    // Reemplazar el logger global
+    zap.ReplaceGlobals(logger)
+    return logger
+}
+
