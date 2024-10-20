@@ -1,12 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 
+	"github.com/raestrada/sappers/config"
 	"github.com/google/uuid"
 	"github.com/raestrada/sappers/cluster"
 	"github.com/raestrada/sappers/members"
@@ -29,74 +28,49 @@ var raftAddr string
 var joinAddr string
 var nodeID string
 var inPeers string
+var gossipPort int
 
 func main() {
-	flag.BoolVar(&inmem, "inmem", false, "Use in-memory storage for Raft")
-	flag.StringVar(&httpAddr, "haddr", DefaultHTTPAddr, "Set the HTTP bind address")
-	flag.StringVar(&raftAddr, "raddr", DefaultRaftAddr, "Set Raft bind address")
-	flag.StringVar(&joinAddr, "join", "", "Set join address, if any")
-	flag.StringVar(&nodeID, "id", "", "Node ID")
-	flag.StringVar(&inPeers, "peers", "127.0.0.1", "peers list")
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s [options] <raft-data-path> \n", os.Args[0])
-		flag.PrintDefaults()
-	}
-
-	flag.Parse()
-
-	if flag.NArg() == 0 {
-		fmt.Fprintf(os.Stderr, "No Raft storage directory specified\n")
-		os.Exit(1)
-	}
-
-	peers = strings.Split(inPeers, ",")
-
-	if value, ok := os.LookupEnv("SAPPERS_PEERS"); ok {
-		peers = strings.Split(value, ",")
-	}
+	cfg := config.GetConfig()
 
 	var logger *zap.Logger
+    var err error
 
-	logLevel := "Error"
-	if value, ok := os.LookupEnv("LOG_LEVEL"); ok {
-		logLevel = value
-	}
+    zapLogLevel := zap.ErrorLevel  // Valor por defecto para el nivel de logs
+    logLevel := cfg.LogLevel       // Obtener el nivel de logs desde el singleton de configuración
 
-	var err error
-	zapLogLevel := zap.DebugLevel
+    switch logLevel {
+    case "INFO":
+        zapLogLevel = zap.InfoLevel
+    case "DEBUG":
+        zapLogLevel = zap.DebugLevel
+    case "WARN":
+        zapLogLevel = zap.WarnLevel
+    case "ERROR":
+        zapLogLevel = zap.ErrorLevel
+    default:
+        zapLogLevel = zap.ErrorLevel
+    }
 
-	switch logLevel {
-	case "INFO":
-		zapLogLevel = zap.InfoLevel
-	case "DEBUG":
-		zapLogLevel = zap.DebugLevel
-	case "WARN":
-		zapLogLevel = zap.WarnLevel
-	case "ERROR":
-		zapLogLevel = zap.ErrorLevel
-	default:
-		zapLogLevel = zap.ErrorLevel
-	}
+    cfgZap := zap.Config{
+        Encoding:         "json",
+        Level:            zap.NewAtomicLevelAt(zapLogLevel),
+        OutputPaths:      []string{"stdout"},
+        ErrorOutputPaths: []string{"stdout"},
+        EncoderConfig: zapcore.EncoderConfig{
+            MessageKey: "msg",
 
-	cfg := zap.Config{
-		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zapLogLevel),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stdout"},
-		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey: "msg",
+            LevelKey:    "level",
+            EncodeLevel: zapcore.CapitalLevelEncoder,
 
-			LevelKey:    "level",
-			EncodeLevel: zapcore.CapitalLevelEncoder,
+            TimeKey:    "time",
+            EncodeTime: zapcore.ISO8601TimeEncoder,
 
-			TimeKey:    "time",
-			EncodeTime: zapcore.ISO8601TimeEncoder,
-
-			CallerKey:    "caller",
-			EncodeCaller: zapcore.ShortCallerEncoder,
-		},
-	}
-	logger, err = cfg.Build()
+            CallerKey:    "caller",
+            EncodeCaller: zapcore.ShortCallerEncoder,
+        },
+    }
+	logger, err =cfgZap.Build()
 
 	if err != nil {
 		panic(err)
@@ -124,6 +98,14 @@ func main() {
 }
 
 func startCluster() {
-	var cluster = cluster.Create(members.GossipMemberListFactory{})
-	cluster.Init(peers)
+    cfg := config.GetConfig()  // Acceder a la configuración centralizada
+
+	zap.L().Info("Initializing cluster", 
+		zap.String("nodeID", cfg.NodeID), 
+		zap.Int("gossipPort", cfg.GossipPort), 
+		zap.Strings("peers", cfg.Peers),
+	)
+
+    var cluster = cluster.Create(members.GossipMemberListFactory{})
+    cluster.Init(cfg.Peers)  // Usar peers desde la configuración
 }

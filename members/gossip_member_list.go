@@ -1,6 +1,7 @@
 package members
 
 import (
+	"github.com/raestrada/sappers/config"
 	"github.com/hashicorp/memberlist"
 	"github.com/raestrada/sappers/domain"
 	"github.com/wesovilabs/koazee"
@@ -41,19 +42,29 @@ func (gml *GossipMemberList) Get() []domain.Member {
 // GossipMemberListFactory ...
 type GossipMemberListFactory struct{}
 
-// Create ...
+// GossipMemberListFactory - Create
 func (gmlf GossipMemberListFactory) Create() MemberList {
-	var funcDesc = "GossipMemberListFactory - Create"
+    var funcDesc = "GossipMemberListFactory - Create"
 
-	list, err := memberlist.Create(memberlist.DefaultLocalConfig())
-	if err != nil {
-		zap.L().Fatal(
-			funcDesc,
-			zap.String("type", "Failed to create memberlist"),
-			zap.String("msg", err.Error()),
-		)
-	}
-	return &GossipMemberList{
-		list: list,
-	}
+    cfg := config.GetConfig()  // Obtener la configuración desde el singleton
+    config := memberlist.DefaultLocalConfig()
+    config.BindPort = cfg.GossipPort  // Usamos el puerto gossip definido en la configuración
+
+    list, err := memberlist.Create(config)
+    if err != nil {
+        zap.L().Fatal(  // Usar el logger global ya configurado
+            funcDesc,
+            zap.String("type", "Failed to create memberlist"),
+            zap.String("msg", err.Error()),
+        )
+    }
+
+    zap.L().Info("Memberlist created successfully",  // Usar el logger global
+        zap.String("nodeID", cfg.NodeID),
+        zap.Int("gossipPort", cfg.GossipPort),
+    )
+
+    return &GossipMemberList{
+        list: list,
+    }
 }
